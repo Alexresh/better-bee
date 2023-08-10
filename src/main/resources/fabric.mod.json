@@ -1,0 +1,38 @@
+{
+	"schemaVersion": 1,
+	"id": "better-bees",
+	"version": "${version}",
+	"name": "Better bees",
+	"description": "Adds new bees with different derived materials",
+	"authors": [
+		"Obabok"
+	],
+	"contact": {
+		"homepage": "",
+		"sources": ""
+	},
+	"license": "CC0-1.0",
+	"icon": "assets/better-bees/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"ru.bees.ServerMain"
+		],
+		"client": [
+			"ru.bees.ExampleModClient"
+		]
+	},
+	"mixins": [
+		"better-bees.mixins.json",
+		{
+			"config": "better-bees.client.mixins.json",
+			"environment": "client"
+		}
+	],
+	"depends": {
+		"fabricloader": ">=0.14.22",
+		"minecraft": "~1.20.1",
+		"java": ">=17",
+		"fabric-api": "*"
+	}
+}
