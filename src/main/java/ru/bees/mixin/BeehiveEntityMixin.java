@@ -39,7 +39,7 @@ public abstract class BeehiveEntityMixin extends BlockEntity {
 
     @Inject(method = "tryEnterHive(Lnet/minecraft/entity/Entity;ZI)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;removeAllPassengers()V", shift = At.Shift.AFTER))
     private void addBee(Entity entity, boolean hasNectar, int ticksInHive, CallbackInfo ci){
-        if(entity instanceof BeeEntity bee /*&& hasNectar*/){
+        if(entity instanceof BeeEntity bee && hasNectar){
             INbtSaver BBbee = (INbtSaver) bee;
             INbtSaver BBBeehive = (INbtSaver) this;
             //add honeys

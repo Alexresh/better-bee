@@ -160,9 +160,14 @@ public class BeeData {
         trySetNewType(Genes.NetherBasic, BeeTypes.SoulSand, Blocks.SOUL_SAND, COMMON_TRANSFORM_CHANCE, genes, serverWorld, parentEntity1, parentEntity2, child);
         //magma
         trySetNewType(Genes.NetherBasic, BeeTypes.Magma, Blocks.SHROOMLIGHT, COMMON_TRANSFORM_CHANCE, genes, serverWorld, parentEntity1, parentEntity2, child);
-
-
-
+        //dirt
+        trySetNewType(Genes.OverworldBasic, BeeTypes.Dirt, Blocks.DIRT, COMMON_TRANSFORM_CHANCE, genes, serverWorld, parentEntity1, parentEntity2, child);
+        //cobblestone
+        trySetNewType(Genes.OverworldBasic, BeeTypes.Cobblestone, Blocks.COBBLESTONE, COMMON_TRANSFORM_CHANCE, genes, serverWorld, parentEntity1, parentEntity2, child);
+        //wood
+        trySetNewType(Genes.OverworldBasic, BeeTypes.Wood, Blocks.OAK_WOOD, COMMON_TRANSFORM_CHANCE, genes, serverWorld, parentEntity1, parentEntity2, child);
+        //stone
+        trySetNewType(Genes.OverworldBasic, BeeTypes.Stone, Blocks.STONE, COMMON_TRANSFORM_CHANCE, genes, serverWorld, parentEntity1, parentEntity2, child);
 
         //mutate type
         //coal
