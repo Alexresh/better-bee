@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import ru.bees.util.INbtSaver;
 
-import static ru.bees.util.BeehiveData.honeyKey;
+import static ru.bees.util.BeehiveData.HONEY_KEY;
 
 @Mixin(BeehiveBlockEntity.class)
 public abstract class BeehiveBlockEntityMixin implements INbtSaver {
@@ -24,15 +24,15 @@ public abstract class BeehiveBlockEntityMixin implements INbtSaver {
 
     @Inject(method = "readNbt", at = @At("HEAD"))
     private void readNbtMixin(NbtCompound nbt, CallbackInfo ci){
-        if(nbt.contains(honeyKey)){
-            persistentData = nbt.getCompound(honeyKey);
+        if(nbt.contains(HONEY_KEY)){
+            persistentData = nbt.getCompound(HONEY_KEY);
         }
     }
 
     @Inject(method = "writeNbt", at = @At("HEAD"))
     private void writeCustomDataToNbt(NbtCompound nbt, CallbackInfo ci){
         if(persistentData != null){
-            nbt.put(honeyKey, persistentData);
+            nbt.put(HONEY_KEY, persistentData);
         }
     }
 }

@@ -11,12 +11,16 @@ import net.minecraft.entity.passive.BeeEntity;
 import net.minecraft.item.*;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtList;
-import net.minecraft.nbt.NbtString;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvents;
+import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
+import net.minecraft.util.Formatting;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.bees.util.BeeData;
 import ru.bees.util.BeehiveData;
+import ru.bees.util.Enums;
 import ru.bees.util.INbtSaver;
 
 import static net.minecraft.block.BeehiveBlock.HONEY_LEVEL;
@@ -28,32 +32,68 @@ public class ServerMain implements ModInitializer {
 	@Override
 	public void onInitialize() {
 		UseEntityCallback.EVENT.register((player, world, hand, entity, hitResult) ->{
-			if(player.getStackInHand(hand).getItem() == Items.TORCH && entity instanceof BeeEntity bee){
-				if(!world.isClient) {
-					bee.growUp(1500);
-				}
-				return ActionResult.SUCCESS;
-			}
-			if(player.getStackInHand(hand).getItem() == Items.WRITABLE_BOOK && entity instanceof BeeEntity bee){
-				if(!world.isClient){
-					ItemStack writableBook = player.getStackInHand(hand);
-					NbtCompound compound = new NbtCompound();
-					NbtList pages = new NbtList();
-					NbtCompound beeData = BeeData.getAllBeeData(((INbtSaver) bee));
-					String page = beeData.toString()
+			if(world.isClient) return ActionResult.PASS;
+			if(!(entity instanceof BeeEntity bee)) return ActionResult.PASS;
+			if(hitResult == null) return ActionResult.PASS;
+
+			ItemStack playerHandItemStack = player.getStackInHand(hand);
+			INbtSaver beeNBT = (INbtSaver) bee;
+			if(playerHandItemStack.getItem() == Items.LECTERN){
+				NbtList beeGenes = BeeData.getGenes(beeNBT);
+				int generation = BeeData.getGeneration(beeNBT);
+
+				player.sendMessage(Text.literal("Generation: ").formatted(Formatting.GRAY).append(Text.literal("" + generation).formatted(Formatting.AQUA)));
+
+				if(beeGenes != null){
+					String genesOutput = "Genes:\n" + beeGenes.asString()
 							.replace(',', '\n')
 							.replace("{","")
 							.replace("}","")
 							.replace("[", "[\n")
 							.replace("]","\n]");
-					pages.add(NbtString.of(page));
-					compound.put("pages", pages);
-					writableBook.setNbt(compound);
+					player.sendMessage(Text.literal("Genes: ").formatted(Formatting.GRAY).append(Text.literal(genesOutput).formatted(Formatting.AQUA)));
 				}
+				Enums.BeeTypes type = BeeData.getBeeType(beeNBT);
+				if(type != null){
+					player.sendMessage(Text.literal("Type: ").formatted(Formatting.GRAY).append(Text.literal(type.name()).formatted(Formatting.AQUA)));
+				}
+				player.sendMessage(Text.literal("Rarity: ").formatted(Formatting.GRAY).append(Text.literal("" + BeeData.getBeeRarity(beeNBT))));
+
+				player.playSound(SoundEvents.ITEM_BOOK_PAGE_TURN, SoundCategory.PLAYERS, 1,1);
 				return ActionResult.SUCCESS;
 			}
 
+			if(playerHandItemStack.getItem() == Items.BEEHIVE){
+				NbtCompound beeNbt = bee.writeNbt(new NbtCompound());
+				beeNbt.remove("UUID");
+				NbtCompound smallBeeData = new NbtCompound();
+				smallBeeData.put("EntityData", beeNbt);
+				NbtCompound beehiveNbt = playerHandItemStack.getNbt();
+				NbtCompound blockEntityTag;
+				if(beehiveNbt != null){
+					blockEntityTag = beehiveNbt.getCompound("BlockEntityTag");
+				}else{
+					blockEntityTag = new NbtCompound();
+				}
+				NbtList beesArray = blockEntityTag.getList("Bees", 10);
+				if(beesArray.size() < 3){
+					beesArray.add(smallBeeData);
+					player.playSound(SoundEvents.BLOCK_BEEHIVE_ENTER, SoundCategory.BLOCKS, 1, 1);
+					bee.teleport(0,-1000,0);
+				}else {
+					player.sendMessage(Text.literal("Beehive is full!").formatted(Formatting.RED), true);
+				}
+				blockEntityTag.put("Bees", beesArray);
+				BlockItem.setBlockEntityNbt(playerHandItemStack,BlockEntityType.BEEHIVE, blockEntityTag);
+			}
+
+			if(playerHandItemStack.getItem() == Items.TORCH && player.hasPermissionLevel(2)){
+				bee.growUp(1500);
+				player.playSound(SoundEvents.BLOCK_BEEHIVE_EXIT, SoundCategory.NEUTRAL, 1 ,1);
+				return ActionResult.SUCCESS;
+			}
 			return ActionResult.PASS;
+
 		});
 		//get beehive block with data
 		UseBlockCallback.EVENT.register((player, world, hand, hitResult) -> {
@@ -62,19 +102,20 @@ public class ServerMain implements ModInitializer {
 					ItemStack itemStack = new ItemStack(Items.BEEHIVE);
 					NbtCompound compound = new NbtCompound();
 					//insert a BB data in compound
-					compound.put(BeehiveData.honeyKey, BeehiveData.getCompound(((INbtSaver) beehiveBlockEntity)));
+					compound.put(BeehiveData.HONEY_KEY, BeehiveData.getCompound(((INbtSaver) beehiveBlockEntity)));
 					boolean hasBees = !beehiveBlockEntity.hasNoBees();
 					//insert bees
 					if (hasBees) {
 						compound.put("Bees", beehiveBlockEntity.getBees());
 					}
+					//insertBlockEntity
+					BlockItem.setBlockEntityNbt(itemStack, BlockEntityType.BEEHIVE, compound);
+					NbtCompound blockStateCompound = new NbtCompound();
 					//insert honeyLevel
 					int honeyLevel = world.getBlockState(hitResult.getBlockPos()).get(HONEY_LEVEL);
-					compound.putInt("honey_level", honeyLevel);
+					blockStateCompound.putInt("honey_level", honeyLevel);
 					//insert blockStateTag
-					itemStack.setSubNbt("BlockStateTag", compound);
-					//insert BlockEntityTag
-					BlockItem.setBlockEntityNbt(itemStack, BlockEntityType.BEEHIVE, compound);
+					itemStack.setSubNbt("BlockStateTag", blockStateCompound);
 					//spawn item in world
 					ItemEntity itemEntity = new ItemEntity(world, hitResult.getBlockPos().getX(), hitResult.getBlockPos().getY() + 1, hitResult.getBlockPos().getZ(), itemStack);
 					itemEntity.setToDefaultPickupDelay();

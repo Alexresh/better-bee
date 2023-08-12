@@ -24,15 +24,15 @@ public abstract class BeeEntityMixin implements INbtSaver {
 
 	@Inject(method = "readNbt", at = @At("HEAD"))
 	private void readNbtMixin(NbtCompound nbt, CallbackInfo ci){
-		if(nbt.contains(BeeData.beeKey)){
-			persistentData = nbt.getCompound(BeeData.beeKey);
+		if(nbt.contains(BeeData.BEE_KEY)){
+			persistentData = nbt.getCompound(BeeData.BEE_KEY);
 		}
 	}
 
 	@Inject(method = "writeNbt", at = @At("HEAD"))
 	private void writeCustomDataToNbt(NbtCompound nbt, CallbackInfoReturnable ci){
 		if(persistentData != null){
-			nbt.put(BeeData.beeKey, persistentData);
+			nbt.put(BeeData.BEE_KEY, persistentData);
 		}
 	}
 

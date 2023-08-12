@@ -6,24 +6,23 @@ import net.minecraft.block.BlockWithEntity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LightningEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.BoneMealItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
 import net.minecraft.world.Heightmap;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import ru.bees.ServerMain;
+import ru.bees.util.Enums.*;
 import ru.bees.util.BeehiveData;
 import ru.bees.util.INbtSaver;
 
@@ -40,90 +39,84 @@ public abstract class BeehiveBlockMixin extends BlockWithEntity{
         ItemStack itemInHand = player.getStackInHand(hand);
         INbtSaver beehive = (INbtSaver) world.getBlockEntity(pos);
         //rain
-        if(itemInHand.isOf(Items.BUCKET)){
-            if(world.isClient){
-                ci.setReturnValue(ActionResult.success(true));
-                return;
-            }
-            removeRainHoney(world, pos, player, hand, beehive, itemInHand);
-            ci.setReturnValue(ActionResult.SUCCESS);
-        }
+        checkRainHoney(itemInHand, world, ci, beehive, player);
+
         //thunder
+        checkThunderHoney(itemInHand, world, ci, beehive, player, hand, pos);
+
+        //overworld
+        checkOverworldHoney(itemInHand, world, ci, beehive, player);
+
+        //nether
+        checkNetherHoney(itemInHand, world, ci, beehive, player);
+
+        //end
+        checkEndHoney(itemInHand, world, ci, beehive, player);
+    }
+
+    private void checkRainHoney(ItemStack itemInHand, World world, CallbackInfoReturnable ci, INbtSaver beehive, PlayerEntity player) {
+        //BUCKET -> WATER_BUCKET
+        checkItem(Items.BUCKET, Items.WATER_BUCKET, Honeys.RainHoney,5, SoundEvents.ITEM_BUCKET_FILL, player, itemInHand, beehive, world ,ci);
+    }
+    private void checkThunderHoney(ItemStack itemInHand, World world, CallbackInfoReturnable ci, INbtSaver beehive, PlayerEntity player, Hand hand, BlockPos pos) {
         if(itemInHand.isOf(Items.TRIDENT) && itemInHand.getEnchantments().toString().contains("minecraft:channeling")){
             if(world.isClient){
                 ci.setReturnValue(ActionResult.success(true));
                 return;
             }
-            removeThunderHoney(itemInHand, player, hand, world, pos, beehive);
+            if(BeehiveData.tryRemoveHoney(beehive, Honeys.ThunderHoney, 5)){
+                itemInHand.damage(100, player, playerx -> playerx.sendToolBreakStatus(hand));
+                LightningEntity lightningEntity = new LightningEntity(EntityType.LIGHTNING_BOLT, world);
+                lightningEntity.setPosition(pos.getX(), world.getTopY(Heightmap.Type.MOTION_BLOCKING, pos.getX(), pos.getZ()), pos.getZ());
+                world.spawnEntity(lightningEntity);
+            }
             ci.setReturnValue(ActionResult.SUCCESS);
         }
-        //nether
-        if(itemInHand.isOf(Items.STONE)){
+    }
+    private void checkOverworldHoney(ItemStack itemInHand, World world, CallbackInfoReturnable ci, INbtSaver beehive, PlayerEntity player) {
+        //NETHERRACK || END_STONE -> STONE
+        checkItem(Items.NETHERRACK, Items.STONE, Honeys.OverworldHoney,1, SoundEvents.BLOCK_STONE_PLACE, player, itemInHand, beehive, world ,ci);
+        checkItem(Items.END_STONE, Items.STONE, Honeys.OverworldHoney,1, SoundEvents.BLOCK_STONE_PLACE, player, itemInHand, beehive, world ,ci);
+
+        //BLACK_STONE -> COBBLESTONE
+        checkItem(Items.BLACKSTONE, Items.COBBLESTONE, Honeys.OverworldHoney,1, SoundEvents.BLOCK_STONE_BREAK, player, itemInHand, beehive, world ,ci);
+    }
+    private void checkNetherHoney(ItemStack itemInHand, World world, CallbackInfoReturnable ci, INbtSaver beehive, PlayerEntity player) {
+        //STONE->NETHERRACK
+        checkItem(Items.STONE, Items.NETHERRACK, Honeys.NetherHoney,1, SoundEvents.BLOCK_STONE_BREAK, player, itemInHand, beehive, world ,ci);
+
+        //COBBLESTONE->BLACKSTONE
+        checkItem(Items.COBBLESTONE, Items.BLACKSTONE, Honeys.NetherHoney,1, SoundEvents.BLOCK_STONE_BREAK, player, itemInHand, beehive, world ,ci);
+
+        //BUCKET->LAVABUCKET
+        checkItem(Items.BUCKET, Items.LAVA_BUCKET, Honeys.NetherHoney,5, SoundEvents.BLOCK_LAVA_POP, player, itemInHand, beehive, world ,ci);
+
+        //STONE_BRICKS->NETHER_BRICKS
+        checkItem(Items.STONE_BRICKS, Items.NETHER_BRICKS, Honeys.NetherHoney,1, SoundEvents.BLOCK_STONE_PLACE, player, itemInHand, beehive, world ,ci);
+
+    }
+
+    private void checkEndHoney(ItemStack itemInHand, World world, CallbackInfoReturnable ci, INbtSaver beehive, PlayerEntity player) {
+        //COBBLESTONE->ENDSTONE
+        checkItem(Items.COBBLESTONE, Items.END_STONE, Honeys.EndHoney,1, SoundEvents.BLOCK_STONE_PLACE, player, itemInHand, beehive, world ,ci);
+
+        //GLASS->PURPUR_GLASS
+        checkItem(Items.GLASS, Items.PURPLE_STAINED_GLASS, Honeys.EndHoney,1, SoundEvents.BLOCK_GLASS_PLACE, player, itemInHand, beehive, world ,ci);
+
+    }
+
+    private void checkItem(Item checkedItem, Item droppedItem, Honeys removedHoney, int amount, SoundEvent soundEvent, PlayerEntity player, ItemStack itemInHand, INbtSaver beehive, World world, CallbackInfoReturnable ci ){
+        if(itemInHand.isOf(checkedItem)){
             if(world.isClient){
                 ci.setReturnValue(ActionResult.success(true));
                 return;
             }
-            removeNetherHoney(beehive, world, player, hand, itemInHand);
-            ci.setReturnValue(ActionResult.SUCCESS);
-        }
-        //overworld
-        if(itemInHand.isEmpty()){
-            if(world.isClient){
-                ci.setReturnValue(ActionResult.success(true));
-                return;
+            if(BeehiveData.tryRemoveHoney(beehive, removedHoney, amount)){
+                player.playSound(soundEvent, SoundCategory.BLOCKS, 1.0f, 1.0f);
+                itemInHand.decrement(1);
+                player.dropItem(new ItemStack(droppedItem), true);
             }
-            removeOverworldHoney(beehive, player, world, pos);
-        }
-        if(itemInHand.isOf(Items.COBBLESTONE)){
-            if(world.isClient){
-                ci.setReturnValue(ActionResult.success(true));
-                return;
-            }
-            removeEndHoney(beehive, world, player, hand, itemInHand);
             ci.setReturnValue(ActionResult.SUCCESS);
-        }
-
-    }
-
-    private void removeEndHoney(INbtSaver beehive, World world, PlayerEntity player, Hand hand, ItemStack itemInHand) {
-        if(BeehiveData.tryRemoveHoney(beehive, BeehiveData.Honeys.EndHoney, 1)){
-            player.playSound(SoundEvents.BLOCK_STONE_BREAK, SoundCategory.BLOCKS, 1.0f, 1.0f);
-            Item endstone = Items.END_STONE;
-            itemInHand.decrement(1);
-            player.dropItem(new ItemStack(endstone), true);
-        }
-    }
-
-    private void removeOverworldHoney(INbtSaver beehive, PlayerEntity player, World world, BlockPos pos) {
-        if(BeehiveData.tryRemoveHoney(beehive, BeehiveData.Honeys.OverworldHoney, 1)){
-            player.playSound(SoundEvents.ITEM_BONE_MEAL_USE, SoundCategory.BLOCKS, 1, 1);
-            ServerMain.LOGGER.info(Boolean.toString(BoneMealItem.useOnGround(new ItemStack(Items.BONE_MEAL), world, pos.add(0,2,0), Direction.DOWN)));
-        }
-    }
-
-    private void removeNetherHoney(INbtSaver beehive, World world, PlayerEntity player, Hand hand, ItemStack itemInHand){
-        if(BeehiveData.tryRemoveHoney(beehive, BeehiveData.Honeys.NetherHoney, 1)){
-            player.playSound(SoundEvents.BLOCK_NETHERRACK_BREAK, SoundCategory.BLOCKS, 1.0f, 1.0f);
-            Item netherrack = Items.NETHERRACK;
-            itemInHand.decrement(1);
-            player.dropItem(new ItemStack(netherrack), true);
-        }
-    }
-
-    private void removeRainHoney(World world, BlockPos pos, PlayerEntity player, Hand hand, INbtSaver beehive, ItemStack itemInHand){
-        if(BeehiveData.tryRemoveHoney(beehive, BeehiveData.Honeys.RainHoney, 1)){
-            player.playSound(SoundEvents.ITEM_BUCKET_FILL, SoundCategory.BLOCKS, 1.0f, 1.0f);
-            Item waterBucket = Items.WATER_BUCKET;
-            itemInHand.decrement(1);
-            player.dropItem(new ItemStack(waterBucket), true);
-        }
-    }
-    private void removeThunderHoney(ItemStack itemInHand, PlayerEntity player, Hand hand, World world, BlockPos pos, INbtSaver beehive){
-        if(BeehiveData.tryRemoveHoney(beehive, BeehiveData.Honeys.ThunderHoney, 5)){
-            itemInHand.damage(100, player, playerx -> playerx.sendToolBreakStatus(hand));
-            LightningEntity lightningEntity = new LightningEntity(EntityType.LIGHTNING_BOLT, world);
-            lightningEntity.setPosition(pos.getX(), world.getTopY(Heightmap.Type.MOTION_BLOCKING, pos.getX(), pos.getZ()), pos.getZ());
-            world.spawnEntity(lightningEntity);
         }
     }
 }
