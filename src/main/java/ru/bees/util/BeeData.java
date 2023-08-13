@@ -168,7 +168,8 @@ public class BeeData {
         trySetNewType(Genes.OverworldBasic, BeeTypes.Wood, Blocks.OAK_WOOD, COMMON_TRANSFORM_CHANCE, genes, serverWorld, parentEntity1, parentEntity2, child);
         //stone
         trySetNewType(Genes.OverworldBasic, BeeTypes.Stone, Blocks.STONE, COMMON_TRANSFORM_CHANCE, genes, serverWorld, parentEntity1, parentEntity2, child);
-
+        //water
+        trySetNewType(Genes.Rain, BeeTypes.Water, Blocks.WATER, COMMON_TRANSFORM_CHANCE, genes, serverWorld, parentEntity1, parentEntity2, child);
 
         //breed types
         tryBreedTypes(BeeTypes.Stone, BeeTypes.Quartz, BeeTypes.Gravel, null, COMMON_TRANSFORM_CHANCE, genes, serverWorld, parentEntity1, parentEntity2, child);
@@ -176,6 +177,12 @@ public class BeeData {
         tryBreedTypes(BeeTypes.Stone, BeeTypes.Stone, BeeTypes.Iron, Blocks.IRON_BLOCK, COMMON_TRANSFORM_CHANCE, genes, serverWorld, parentEntity1, parentEntity2, child);
         tryBreedTypes(BeeTypes.Gold, BeeTypes.Iron, BeeTypes.Emerald, Blocks.EMERALD_BLOCK, RARE_TRANSFORM_CHANCE, genes, serverWorld, parentEntity1, parentEntity2, child);
         tryBreedTypes(BeeTypes.Emerald, BeeTypes.Glass, BeeTypes.Diamond, Blocks.DIAMOND_BLOCK, RARE_TRANSFORM_CHANCE, genes, serverWorld, parentEntity1, parentEntity2, child);
+        tryBreedTypes(BeeTypes.Stone, BeeTypes.Magma, BeeTypes.Redstone, null, COMMON_TRANSFORM_CHANCE, genes, serverWorld, parentEntity1, parentEntity2, child);
+        tryBreedTypes(BeeTypes.Gravel, BeeTypes.Cobblestone, BeeTypes.Sand, null, COMMON_TRANSFORM_CHANCE, genes, serverWorld, parentEntity1, parentEntity2, child);
+        tryBreedTypes(BeeTypes.Sand, BeeTypes.Coal, BeeTypes.Glass, null, COMMON_TRANSFORM_CHANCE, genes, serverWorld, parentEntity1, parentEntity2, child);
+        tryBreedTypes(BeeTypes.Chorus, BeeTypes.Quartz, BeeTypes.Lapis, null, COMMON_TRANSFORM_CHANCE, genes, serverWorld, parentEntity1, parentEntity2, child);
+        tryBreedTypes(BeeTypes.Water, BeeTypes.Dirt, BeeTypes.Clay, null, COMMON_TRANSFORM_CHANCE, genes, serverWorld, parentEntity1, parentEntity2, child);
+        tryBreedTypes(BeeTypes.Stone, BeeTypes.Stone, BeeTypes.Copper, Blocks.COPPER_ORE, COMMON_TRANSFORM_CHANCE, genes, serverWorld, parentEntity1, parentEntity2, child);
 
         //distinct genes
         genes = genes.stream().distinct().toList();
