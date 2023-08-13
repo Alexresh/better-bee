@@ -7,7 +7,11 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.nbt.NbtString;
+import net.minecraft.particle.ParticleEffect;
+import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvents;
 import net.minecraft.world.dimension.DimensionTypes;
 import org.jetbrains.annotations.Nullable;
 import ru.bees.util.Enums.*;
@@ -154,8 +158,6 @@ public class BeeData {
         trySetNewType(Genes.NetherBasic, BeeTypes.Gold, Blocks.GOLD_BLOCK, COMMON_TRANSFORM_CHANCE, genes, serverWorld, parentEntity1, parentEntity2, child);
         //glowstone
         trySetNewType(Genes.NetherBasic, BeeTypes.Glowstone, Blocks.GLOWSTONE, COMMON_TRANSFORM_CHANCE, genes, serverWorld, parentEntity1, parentEntity2, child);
-        //netherite
-        trySetNewType(Genes.NetherBasic, BeeTypes.Netherite, Blocks.NETHERITE_BLOCK, LEGENDARY_TRANSFORM_CHANCE, genes, serverWorld, parentEntity1, parentEntity2, child);
         //soulsand
         trySetNewType(Genes.NetherBasic, BeeTypes.SoulSand, Blocks.SOUL_SAND, COMMON_TRANSFORM_CHANCE, genes, serverWorld, parentEntity1, parentEntity2, child);
         //magma
@@ -172,6 +174,7 @@ public class BeeData {
         trySetNewType(Genes.Rain, BeeTypes.Water, Blocks.WATER, COMMON_TRANSFORM_CHANCE, genes, serverWorld, parentEntity1, parentEntity2, child);
 
         //breed types
+        tryBreedTypes(BeeTypes.Magma, BeeTypes.Diamond, BeeTypes.Netherite, Blocks.ANCIENT_DEBRIS, LEGENDARY_TRANSFORM_CHANCE, genes, serverWorld, parentEntity1, parentEntity2, child);
         tryBreedTypes(BeeTypes.Stone, BeeTypes.Quartz, BeeTypes.Gravel, null, COMMON_TRANSFORM_CHANCE, genes, serverWorld, parentEntity1, parentEntity2, child);
         tryBreedTypes(BeeTypes.Stone, BeeTypes.Stone, BeeTypes.Coal, Blocks.COAL_BLOCK, COMMON_TRANSFORM_CHANCE, genes, serverWorld, parentEntity1, parentEntity2, child);
         tryBreedTypes(BeeTypes.Stone, BeeTypes.Stone, BeeTypes.Iron, Blocks.IRON_BLOCK, COMMON_TRANSFORM_CHANCE, genes, serverWorld, parentEntity1, parentEntity2, child);
@@ -218,6 +221,7 @@ public class BeeData {
                     return;
                 }
                 genes.clear();
+                serverWorld.spawnParticles(ParticleTypes.FIREWORK,parentEntity1.getX(),parentEntity1.getY(),parentEntity1.getZ(),100, 0.1, 0.1,0.1,0.1);
                 setBeeType(child, result_type);
             }
 
@@ -225,18 +229,6 @@ public class BeeData {
 
     }
 
-    private static void tryMutateType(BeeTypes checkedType, BeeTypes newType, Block checkedBlock, int chance, List<Genes> genes, ServerWorld serverWorld, Entity parentEntity1, Entity parentEntity2, INbtSaver child) {
-        INbtSaver parent1NBT = (INbtSaver) parentEntity1;
-        INbtSaver parent2NBT = (INbtSaver) parentEntity2;
-        if(getBeeType(parent1NBT) == checkedType
-                && getBeeType(parent2NBT) == checkedType
-                && serverWorld.getBlockState(parentEntity1.getBlockPos().down()).isOf(checkedBlock)
-                && serverWorld.getBlockState(parentEntity2.getBlockPos().down()).isOf(checkedBlock)
-                && serverWorld.random.nextInt(100) <= chance){
-            genes.clear();
-            setBeeType(child, newType);
-        }
-    }
 
     private static void trySetNewType(Genes checkedGene, BeeTypes newType, Block checkedBlock, int chance, List<Genes> genes, ServerWorld serverWorld, Entity parentEntity1, Entity parentEntity2, INbtSaver child){
         INbtSaver parent1NBT = (INbtSaver) parentEntity1;
@@ -247,6 +239,7 @@ public class BeeData {
                 && serverWorld.getBlockState(parentEntity2.getBlockPos().down()).isOf(checkedBlock)
                 && serverWorld.random.nextInt(100) <= chance){
             genes.clear();
+            serverWorld.spawnParticles(ParticleTypes.FIREWORK,parentEntity1.getX(),parentEntity1.getY(),parentEntity1.getZ(),100, 0.1, 0.1,0.1,0.1);
             setBeeType(child, newType);
         }
     }
