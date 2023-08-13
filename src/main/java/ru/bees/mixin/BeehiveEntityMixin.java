@@ -67,7 +67,7 @@ public abstract class BeehiveEntityMixin extends BlockEntity {
                 case Obsidian -> dropItem(Items.OBSIDIAN, beeRarity * COMMON_CHANCE * TENTH, beeRarity, RARE_MULTIPLIER);
                 case Shulker -> dropItem(Items.SHULKER_SHELL, beeRarity * COMMON_CHANCE * TENTH, beeRarity, ZERO_MULTIPLIER);
                 case Quartz -> dropItem(Items.QUARTZ, beeRarity * COMMON_CHANCE * TENTH, beeRarity, COMMON_MULTIPLIER);
-                case Gold -> dropItem(Items.GOLD_NUGGET, beeRarity * COMMON_CHANCE * TENTH, beeRarity, COMMON_MULTIPLIER);
+                case Gold -> dropItem(Items.GOLD_INGOT, beeRarity * COMMON_CHANCE * TENTH, beeRarity, COMMON_MULTIPLIER);
                 case Glowstone -> dropItem(Items.GLOWSTONE, beeRarity * COMMON_CHANCE * TENTH, beeRarity, COMMON_MULTIPLIER);
                 case Netherite -> dropItem(Items.NETHERITE_SCRAP, beeRarity * RARE_CHANCE, beeRarity, ZERO_MULTIPLIER);
                 case SoulSand -> dropItem(Items.SOUL_SAND, beeRarity * COMMON_CHANCE * TENTH, beeRarity, RARE_MULTIPLIER);
@@ -77,9 +77,18 @@ public abstract class BeehiveEntityMixin extends BlockEntity {
                 case Wood -> dropItem(Items.OAK_WOOD, beeRarity * COMMON_CHANCE * TENTH, beeRarity, COMMON_MULTIPLIER);
                 case Stone -> dropItem(Items.STONE, beeRarity * COMMON_CHANCE * TENTH, beeRarity, COMMON_MULTIPLIER);
                 case Coal -> dropItem(Items.COAL, beeRarity * COMMON_CHANCE * TENTH, beeRarity, COMMON_MULTIPLIER);
-                case Iron -> dropItem(Items.IRON_INGOT, beeRarity * COMMON_CHANCE * TENTH, beeRarity, COMMON_MULTIPLIER);
+                case Iron -> dropItem(Items.RAW_IRON, beeRarity * COMMON_CHANCE * TENTH, beeRarity, COMMON_MULTIPLIER);
                 case Diamond -> dropItem(Items.DIAMOND, beeRarity * COMMON_CHANCE, beeRarity, ZERO_MULTIPLIER);
                 case Emerald -> dropItem(Items.EMERALD, beeRarity * COMMON_CHANCE * 5, beeRarity, RARE_MULTIPLIER);
+
+                case Clay -> dropItem(Items.CLAY_BALL, beeRarity * COMMON_CHANCE * TENTH, beeRarity, COMMON_MULTIPLIER);
+                case Sand -> dropItem(Items.GRAVEL, beeRarity * COMMON_CHANCE * TENTH, beeRarity, COMMON_MULTIPLIER);
+                case Glass -> dropItem(Items.GLASS, beeRarity * COMMON_CHANCE * TENTH, beeRarity, COMMON_MULTIPLIER);
+                case Lapis -> dropItem(Items.CLAY_BALL, beeRarity * COMMON_CHANCE * TENTH, beeRarity, COMMON_MULTIPLIER);
+                case Water -> dropItem(Items.HEART_OF_THE_SEA, beeRarity * COMMON_CHANCE, beeRarity, ZERO_MULTIPLIER);
+                case Copper -> dropItem(Items.RAW_COPPER, beeRarity * COMMON_CHANCE * TENTH, beeRarity, COMMON_MULTIPLIER);
+                case Gravel -> dropItem(Items.GRAVEL, beeRarity * COMMON_CHANCE * TENTH, beeRarity, COMMON_MULTIPLIER);
+                case Redstone -> dropItem(Items.REDSTONE, beeRarity * COMMON_CHANCE * TENTH, beeRarity, COMMON_MULTIPLIER);
                 default -> {}
             }
         }

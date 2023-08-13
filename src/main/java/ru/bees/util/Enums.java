@@ -30,7 +30,15 @@ public class Enums {
         Coal,
         Iron,
         Diamond,
-        Emerald
+        Emerald,
+        Gravel,
+        Sand,
+        Glass,
+        Redstone,
+        Lapis,
+        Water,
+        Clay,
+        Copper
     }
 
     public static enum Honeys{

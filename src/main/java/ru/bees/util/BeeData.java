@@ -169,16 +169,13 @@ public class BeeData {
         //stone
         trySetNewType(Genes.OverworldBasic, BeeTypes.Stone, Blocks.STONE, COMMON_TRANSFORM_CHANCE, genes, serverWorld, parentEntity1, parentEntity2, child);
 
-        //mutate type
-        //coal
-        tryMutateType(BeeTypes.Stone, BeeTypes.Coal, Blocks.COAL_BLOCK, COMMON_TRANSFORM_CHANCE, genes, serverWorld, parentEntity1, parentEntity2, child);
-        //iron
-        tryMutateType(BeeTypes.Stone, BeeTypes.Iron, Blocks.IRON_BLOCK, COMMON_TRANSFORM_CHANCE, genes, serverWorld, parentEntity1, parentEntity2, child);
-        //diamond
-        tryMutateType(BeeTypes.Stone, BeeTypes.Diamond, Blocks.DIAMOND_BLOCK, RARE_TRANSFORM_CHANCE, genes, serverWorld, parentEntity1, parentEntity2, child);
-        //emerald
-        tryMutateType(BeeTypes.Stone, BeeTypes.Emerald, Blocks.EMERALD_BLOCK, RARE_TRANSFORM_CHANCE, genes, serverWorld, parentEntity1, parentEntity2, child);
 
+        //breed types
+        tryBreedTypes(BeeTypes.Stone, BeeTypes.Quartz, BeeTypes.Gravel, null, COMMON_TRANSFORM_CHANCE, genes, serverWorld, parentEntity1, parentEntity2, child);
+        tryBreedTypes(BeeTypes.Stone, BeeTypes.Stone, BeeTypes.Coal, Blocks.COAL_BLOCK, COMMON_TRANSFORM_CHANCE, genes, serverWorld, parentEntity1, parentEntity2, child);
+        tryBreedTypes(BeeTypes.Stone, BeeTypes.Stone, BeeTypes.Iron, Blocks.IRON_BLOCK, COMMON_TRANSFORM_CHANCE, genes, serverWorld, parentEntity1, parentEntity2, child);
+        tryBreedTypes(BeeTypes.Gold, BeeTypes.Iron, BeeTypes.Emerald, Blocks.EMERALD_BLOCK, RARE_TRANSFORM_CHANCE, genes, serverWorld, parentEntity1, parentEntity2, child);
+        tryBreedTypes(BeeTypes.Emerald, BeeTypes.Glass, BeeTypes.Diamond, Blocks.DIAMOND_BLOCK, RARE_TRANSFORM_CHANCE, genes, serverWorld, parentEntity1, parentEntity2, child);
 
         //distinct genes
         genes = genes.stream().distinct().toList();
@@ -196,7 +193,32 @@ public class BeeData {
         }
     }
 
-    private static void tryMutateType(BeeTypes checkedType, BeeTypes newType, Block checkedBlock, int chance, List<Genes> genes,ServerWorld serverWorld, Entity parentEntity1, Entity parentEntity2, INbtSaver child) {
+    private static void tryBreedTypes(BeeTypes source_type1, BeeTypes source_type2, BeeTypes result_type, @Nullable Block checkedBlock, int chance, List<Genes> genes, ServerWorld serverWorld, Entity parentEntity1, Entity parentEntity2, INbtSaver child) {
+        INbtSaver parent1NBT = (INbtSaver) parentEntity1;
+        INbtSaver parent2NBT = (INbtSaver) parentEntity2;
+        BeeTypes parent1Type = getBeeType(parent1NBT);
+        BeeTypes parent2Type = getBeeType(parent2NBT);
+        //pizdes если типы равны и у родителей тоже одинаковые типы или если типы не равны и у родителей не равны
+        if((source_type1 == source_type2 && parent1Type == parent2Type && parent1Type == source_type1)
+                || (parent1Type != parent2Type
+                    && (parent1Type == source_type1 || parent1Type == source_type2)
+                    && (parent2Type == source_type1 || parent2Type == source_type2))){
+            if(serverWorld.random.nextInt(100) <= chance){
+                //pizdes x2 если нужно чекнуть блок и если у хотя бы одно из родителей нет блока под собой, то выйти
+                if(checkedBlock != null
+                        && (!serverWorld.getBlockState(parentEntity1.getBlockPos().down()).isOf(checkedBlock)
+                            || !serverWorld.getBlockState(parentEntity2.getBlockPos().down()).isOf(checkedBlock))){
+                    return;
+                }
+                genes.clear();
+                setBeeType(child, result_type);
+            }
+
+        }
+
+    }
+
+    private static void tryMutateType(BeeTypes checkedType, BeeTypes newType, Block checkedBlock, int chance, List<Genes> genes, ServerWorld serverWorld, Entity parentEntity1, Entity parentEntity2, INbtSaver child) {
         INbtSaver parent1NBT = (INbtSaver) parentEntity1;
         INbtSaver parent2NBT = (INbtSaver) parentEntity2;
         if(getBeeType(parent1NBT) == checkedType
