@@ -3,7 +3,7 @@
 	"id": "better-bees",
 	"version": "${version}",
 	"name": "Better bees",
-	"description": "Adds new bees with different derived materials",
+	"description": "Adds new bees with different derived materials and loot",
 	"authors": [
 		"Obabok"
 	],
