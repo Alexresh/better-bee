@@ -6,9 +6,13 @@ English version: [README.md](https://github.com/Alexresh/better-bee/blob/master/
 1. Пчелы получают гены, тип и редкость
 2. Некоторые пчелы приносят особый мед в улей, который тратится на обмен блоками или на другие вещи
 3. Некоторые пчелы приносят предмет своего типа при входе в улей (дропается в улье в качестве предмета, воронка под ульем подберет его):
+
   ![Пример дропа](https://github.com/Alexresh/better-bee/blob/master/images/example2.png?raw=true)
+
 4. Пчелы могут скрещиваться по следующей схеме (better-bees.vsdx visio файл):
+
   ![Схема дропа и скрещивания](https://github.com/Alexresh/better-bee/blob/master/images/scheme.png?raw=true)
+
 5. Клик по пчеле кафедрой выводит информацию о ней в чат
 6. Клик по пчеле ульем заставит её поселиться в нем
 7. Клик по улью любым item с зачарованием шелковое касание заставит улей дропнуться со всем медом и пчелами внутри
@@ -19,6 +23,7 @@ English version: [README.md](https://github.com/Alexresh/better-bee/blob/master/
 
 Как потратить особый мед? 
 - Каждый особый мед тратится на обмен предметами или на вызов некоторых событий (молния, если мед принесла грозовая пчела)
+  
   ![Пример вызова молнии](https://github.com/Alexresh/better-bee/blob/master/images/example4.png?raw=true)
 
 Вот некоторые примеры со схемы в текстовом виде: 
@@ -29,10 +34,12 @@ English version: [README.md](https://github.com/Alexresh/better-bee/blob/master/
 - Изначально вам необходимо получить базовых пчел (Nether, End). Для этого они должны родиться в соответствующем мире.
 
 - Далее их необходимо скрестить между собой, чтобы оба гена передалось новой пчеле и у неё появился другой ген (Overworld). Скрестя Overworld и End получим EndBasic. Overworld+Nether=NetherBasic (мир уже не имеет значения)
+  
   ![Как получить Overworld пчелу](https://github.com/Alexresh/better-bee/blob/master/images/example.png?raw=true)
 
 Как получить пчелу, которая будет приносить предметы?
 - Берем родителей с одинаковыми генами (например OverworldBasic (Overworld+Overworld)) и заставляем их любить над блоком камня, если оба родителя были над блоком камня, то с шансом 10% вы получите каменную пчелу (У неё не будет генов, но появится тип Stone).
+  
   ![Пример получения обсидиановой пчелы](https://github.com/Alexresh/better-bee/blob/master/images/example3.png?raw=true)
 
 - В зависимости от её редкости она будет приносить определенное количество камня в улей с определенным шансом со схемы.
