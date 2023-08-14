@@ -4,6 +4,7 @@ import net.fabricmc.api.ModInitializer;
 
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 import net.fabricmc.fabric.api.event.player.UseEntityCallback;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.block.entity.BeehiveBlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.ItemEntity;
@@ -11,6 +12,7 @@ import net.minecraft.entity.passive.BeeEntity;
 import net.minecraft.item.*;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtList;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
@@ -66,7 +68,10 @@ public class ServerMain implements ModInitializer {
 			if(playerHandItemStack.getItem() == Items.BEEHIVE){
 				NbtCompound beeNbt = bee.writeNbt(new NbtCompound());
 				beeNbt.remove("UUID");
+				beeNbt.putString("id", "minecraft:bee");
+
 				NbtCompound smallBeeData = new NbtCompound();
+				smallBeeData.putInt("MinOccupationTicks", bee.hasNectar() ? 2400 : 600);
 				smallBeeData.put("EntityData", beeNbt);
 				NbtCompound beehiveNbt = playerHandItemStack.getNbt();
 				NbtCompound blockEntityTag;
@@ -88,7 +93,8 @@ public class ServerMain implements ModInitializer {
 			}
 
 			if(playerHandItemStack.getItem() == Items.TORCH && player.hasPermissionLevel(2)){
-				bee.growUp(1500);
+				bee.age = 0;
+				bee.setBaby(false);
 				player.playSound(SoundEvents.BLOCK_BEEHIVE_EXIT, SoundCategory.NEUTRAL, 1 ,1);
 				return ActionResult.SUCCESS;
 			}
