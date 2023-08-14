@@ -1,21 +1,20 @@
 package ru.bees.util;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.Blocks;
 import net.minecraft.entity.Entity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
-import net.minecraft.nbt.NbtString;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.world.dimension.DimensionTypes;
 import org.jetbrains.annotations.Nullable;
+import ru.bees.ServerMain;
+import ru.bees.data.BreedVariant;
+import ru.bees.data.BreedVariants;
 import ru.bees.util.Enums.*;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 public class BeeData {
 
@@ -23,15 +22,13 @@ public class BeeData {
     public static final String GENES_KEY = "Genes";
     public static final String TYPE_KEY = "BeeType";
     public static final String RARITY_KEY = "Rarity";
-    private static final int GENE_TRANSFER_CHANCE = 75;
-    private static final int COMMON_TRANSFORM_CHANCE = 10;
-    private static final int RARE_TRANSFORM_CHANCE = 5;
-    private static final int LEGENDARY_TRANSFORM_CHANCE = 1;
     public static final int MAX_RARITY = 10;
     public static final String GENERATION_KEY = "Generation";
+
     public static NbtCompound getAllBeeData(INbtSaver bee){
         return bee.getNbtData();
     }
+
     private static void setGeneration(INbtSaver parent1,INbtSaver parent2, INbtSaver child){
         int generation1 = parent1.getNbtData().getInt(GENERATION_KEY);
         int generation2 = parent2.getNbtData().getInt(GENERATION_KEY);
@@ -42,12 +39,19 @@ public class BeeData {
         return bee.getNbtData().getInt(GENERATION_KEY);
     }
 
+
     private static void setBeeType(INbtSaver bee, BeeTypes type){
         bee.getNbtData().putString(TYPE_KEY, type.name());
     }
+
     public static @Nullable BeeTypes getBeeType(INbtSaver bee){
-        return bee.getNbtData().contains(TYPE_KEY) ? BeeTypes.valueOf(bee.getNbtData().getString(TYPE_KEY)) : null;
+        try{
+            return bee.getNbtData().contains(TYPE_KEY) ? BeeTypes.valueOf(bee.getNbtData().getString(TYPE_KEY)) : null;
+        } catch (IllegalArgumentException e){
+            return null;
+        }
     }
+
     private static void setBeeRarity(INbtSaver bee, int rarity){
         bee.getNbtData().putInt(RARITY_KEY, Math.min(rarity, MAX_RARITY));
     }
@@ -78,56 +82,9 @@ public class BeeData {
         INbtSaver parent1 = ((INbtSaver) parentEntity1);
         INbtSaver parent2 = ((INbtSaver) parentEntity2);
         INbtSaver child = ((INbtSaver) childEntity);
-        NbtList genes1 = getGenes(parent1);
-        NbtList genes2 = getGenes(parent2);
-        List<Genes> genes = new ArrayList<>();
-        //set a base genes
-        if(serverWorld.isRaining()){
-            genes.add(Genes.Rain);
-        }
-        if(serverWorld.isThundering()){
-            genes.add(Genes.Thunder);
-        }
-        if(childEntity.getEntityWorld().getRegistryKey().getValue().equals(DimensionTypes.THE_END.getValue())){
-            genes.add(Genes.End);
-        }
-        if(childEntity.getEntityWorld().getRegistryKey().getValue().equals(DimensionTypes.THE_NETHER.getValue())){
-            genes.add(Genes.Nether);
-        }
 
-        //Breeding basic
-        if(genes1 != null && genes2 != null){
-            //mix genes
-            for (NbtElement parent1Gene:genes1) {
-                if(serverWorld.random.nextInt(100) <= GENE_TRANSFER_CHANCE) genes.add(Genes.valueOf(parent1Gene.asString()));
-            }
-            for (NbtElement parent2Gene:genes2) {
-                if(serverWorld.random.nextInt(100) <= GENE_TRANSFER_CHANCE) genes.add(Genes.valueOf(parent2Gene.asString()));
-            }
 
-            //overworld
-            if(genes.contains(Genes.End) && genes.contains(Genes.Nether)){
-                genes.clear();
-                genes.add(Genes.Overworld);
-            }
-            //overworldBasic
-            if(Collections.frequency(genes, Genes.Overworld) > 1){
-                genes.clear();
-                genes.add(Genes.OverworldBasic);
-            }
-            //endBasic
-            if(genes.contains(Genes.End) && genes.contains(Genes.OverworldBasic)){
-                genes.clear();
-                genes.add(Genes.EndBasic);
-            }
-            //netherBasic
-            if(genes.contains(Genes.Nether) && genes.contains(Genes.OverworldBasic)){
-                genes.clear();
-                genes.add(Genes.NetherBasic);
-            }
-        }
-
-        //set rarity and parent type
+        //set rarity and one of parent's type
         BeeTypes parent1Type = getBeeType(parent1);
         BeeTypes parent2Type = getBeeType(parent2);
         if(parent1Type != null && parent2Type != null){
@@ -139,106 +96,47 @@ public class BeeData {
             }else {
                 setBeeType(child, serverWorld.random.nextBoolean() ? parent1Type : parent2Type);
             }
-
+        }else {
+            //set basic types
+            //rain
+            if(serverWorld.isRaining()){
+                setBeeType(child, BeeTypes.Rain);
+            }
+            //thunder
+            if(serverWorld.isThundering()){
+                setBeeType(child, BeeTypes.Thunder);
+            }
+            //end
+            if(childEntity.getEntityWorld().getRegistryKey().getValue().equals(DimensionTypes.THE_END.getValue())){
+                setBeeType(child, BeeTypes.End);
+            }
+            //nether
+            if(childEntity.getEntityWorld().getRegistryKey().getValue().equals(DimensionTypes.THE_NETHER.getValue())){
+                setBeeType(child, BeeTypes.Nether);
+            }
         }
-
-        //mutate to type
-        //obsidian
-        trySetNewType(Genes.EndBasic, BeeTypes.Obsidian, Blocks.OBSIDIAN, COMMON_TRANSFORM_CHANCE, genes, serverWorld, parentEntity1, parentEntity2, child);
-        //chorus
-        trySetNewType(Genes.EndBasic, BeeTypes.Chorus, Blocks.END_STONE, COMMON_TRANSFORM_CHANCE, genes, serverWorld, parentEntity1, parentEntity2, child);
-        //shulker
-        trySetNewType(Genes.EndBasic, BeeTypes.Shulker, Blocks.SHULKER_BOX, RARE_TRANSFORM_CHANCE, genes, serverWorld, parentEntity1, parentEntity2, child);
-        //quartz
-        trySetNewType(Genes.NetherBasic, BeeTypes.Quartz, Blocks.QUARTZ_BLOCK, COMMON_TRANSFORM_CHANCE, genes, serverWorld, parentEntity1, parentEntity2, child);
-        //gold
-        trySetNewType(Genes.NetherBasic, BeeTypes.Gold, Blocks.GOLD_BLOCK, COMMON_TRANSFORM_CHANCE, genes, serverWorld, parentEntity1, parentEntity2, child);
-        //glowstone
-        trySetNewType(Genes.NetherBasic, BeeTypes.Glowstone, Blocks.GLOWSTONE, COMMON_TRANSFORM_CHANCE, genes, serverWorld, parentEntity1, parentEntity2, child);
-        //soulsand
-        trySetNewType(Genes.NetherBasic, BeeTypes.SoulSand, Blocks.SOUL_SAND, COMMON_TRANSFORM_CHANCE, genes, serverWorld, parentEntity1, parentEntity2, child);
-        //magma
-        trySetNewType(Genes.NetherBasic, BeeTypes.Magma, Blocks.SHROOMLIGHT, COMMON_TRANSFORM_CHANCE, genes, serverWorld, parentEntity1, parentEntity2, child);
-        //dirt
-        trySetNewType(Genes.OverworldBasic, BeeTypes.Dirt, Blocks.DIRT, COMMON_TRANSFORM_CHANCE, genes, serverWorld, parentEntity1, parentEntity2, child);
-        //cobblestone
-        trySetNewType(Genes.OverworldBasic, BeeTypes.Cobblestone, Blocks.COBBLESTONE, COMMON_TRANSFORM_CHANCE, genes, serverWorld, parentEntity1, parentEntity2, child);
-        //wood
-        trySetNewType(Genes.OverworldBasic, BeeTypes.Wood, Blocks.OAK_WOOD, COMMON_TRANSFORM_CHANCE, genes, serverWorld, parentEntity1, parentEntity2, child);
-        //stone
-        trySetNewType(Genes.OverworldBasic, BeeTypes.Stone, Blocks.STONE, COMMON_TRANSFORM_CHANCE, genes, serverWorld, parentEntity1, parentEntity2, child);
-        //water
-        trySetNewType(Genes.Rain, BeeTypes.Water, Blocks.WATER, COMMON_TRANSFORM_CHANCE, genes, serverWorld, parentEntity1, parentEntity2, child);
 
         //breed types
-        tryBreedTypes(BeeTypes.Magma, BeeTypes.Diamond, BeeTypes.Netherite, Blocks.ANCIENT_DEBRIS, LEGENDARY_TRANSFORM_CHANCE, genes, serverWorld, parentEntity1, parentEntity2, child);
-        tryBreedTypes(BeeTypes.Stone, BeeTypes.Quartz, BeeTypes.Gravel, null, COMMON_TRANSFORM_CHANCE, genes, serverWorld, parentEntity1, parentEntity2, child);
-        tryBreedTypes(BeeTypes.Stone, BeeTypes.Stone, BeeTypes.Coal, Blocks.COAL_BLOCK, COMMON_TRANSFORM_CHANCE, genes, serverWorld, parentEntity1, parentEntity2, child);
-        tryBreedTypes(BeeTypes.Stone, BeeTypes.Stone, BeeTypes.Iron, Blocks.IRON_BLOCK, COMMON_TRANSFORM_CHANCE, genes, serverWorld, parentEntity1, parentEntity2, child);
-        tryBreedTypes(BeeTypes.Gold, BeeTypes.Iron, BeeTypes.Emerald, Blocks.EMERALD_BLOCK, RARE_TRANSFORM_CHANCE, genes, serverWorld, parentEntity1, parentEntity2, child);
-        tryBreedTypes(BeeTypes.Emerald, BeeTypes.Glass, BeeTypes.Diamond, Blocks.DIAMOND_BLOCK, RARE_TRANSFORM_CHANCE, genes, serverWorld, parentEntity1, parentEntity2, child);
-        tryBreedTypes(BeeTypes.Stone, BeeTypes.Magma, BeeTypes.Redstone, null, COMMON_TRANSFORM_CHANCE, genes, serverWorld, parentEntity1, parentEntity2, child);
-        tryBreedTypes(BeeTypes.Gravel, BeeTypes.Cobblestone, BeeTypes.Sand, null, COMMON_TRANSFORM_CHANCE, genes, serverWorld, parentEntity1, parentEntity2, child);
-        tryBreedTypes(BeeTypes.Sand, BeeTypes.Coal, BeeTypes.Glass, null, COMMON_TRANSFORM_CHANCE, genes, serverWorld, parentEntity1, parentEntity2, child);
-        tryBreedTypes(BeeTypes.Chorus, BeeTypes.Quartz, BeeTypes.Lapis, null, COMMON_TRANSFORM_CHANCE, genes, serverWorld, parentEntity1, parentEntity2, child);
-        tryBreedTypes(BeeTypes.Water, BeeTypes.Dirt, BeeTypes.Clay, null, COMMON_TRANSFORM_CHANCE, genes, serverWorld, parentEntity1, parentEntity2, child);
-        tryBreedTypes(BeeTypes.Stone, BeeTypes.Stone, BeeTypes.Copper, Blocks.COPPER_ORE, COMMON_TRANSFORM_CHANCE, genes, serverWorld, parentEntity1, parentEntity2, child);
-
-        //distinct genes
-        genes = genes.stream().distinct().toList();
-
+        ArrayList<BreedVariant> breedVariants = BreedVariants.getAllBreedVariants();
+        for (BreedVariant variant: breedVariants) {
+            //pizdes если типы равны и у родителей тоже одинаковые типы или если типы не равны и у родителей не равны
+            if((variant.parent1Type() == variant.parent2Type() && parent1Type == parent2Type && parent1Type == variant.parent1Type())
+                    || (parent1Type != parent2Type
+                    && (parent1Type == variant.parent1Type() || parent1Type == variant.parent2Type())
+                    && (parent2Type == variant.parent1Type() || parent2Type == variant.parent2Type()))){
+                if(serverWorld.random.nextInt(100) <= 100 /*variant.chance()*/){
+                    //pizdes x2 если нужно чекнуть блок и если у хотя бы одно из родителей нет нужного блока под собой, то выйти
+                    if(variant.checkedBlock() != null
+                            && (!serverWorld.getBlockState(parentEntity1.getBlockPos().down()).isOf(variant.checkedBlock())
+                            || !serverWorld.getBlockState(parentEntity2.getBlockPos().down()).isOf(variant.checkedBlock()))){
+                        continue;
+                    }
+                    serverWorld.spawnParticles(ParticleTypes.FIREWORK,parentEntity1.getX(),parentEntity1.getY(),parentEntity1.getZ(),100, 0.1, 0.1,0.1,0.1);
+                    setBeeType(child, variant.resultType());
+                }
+            }
+        }
         //set generation
         setGeneration(parent1, parent2, child);
-
-        //write genes in child
-        if(!genes.isEmpty()){
-            NbtList nbtGenes = new NbtList();
-            for (Genes gen:genes) {
-                nbtGenes.add(NbtString.of(gen.name()));
-            }
-            setGenes(child, nbtGenes);
-        }
     }
-
-    private static void tryBreedTypes(BeeTypes source_type1, BeeTypes source_type2, BeeTypes result_type, @Nullable Block checkedBlock, int chance, List<Genes> genes, ServerWorld serverWorld, Entity parentEntity1, Entity parentEntity2, INbtSaver child) {
-        INbtSaver parent1NBT = (INbtSaver) parentEntity1;
-        INbtSaver parent2NBT = (INbtSaver) parentEntity2;
-        BeeTypes parent1Type = getBeeType(parent1NBT);
-        BeeTypes parent2Type = getBeeType(parent2NBT);
-        //pizdes если типы равны и у родителей тоже одинаковые типы или если типы не равны и у родителей не равны
-        if((source_type1 == source_type2 && parent1Type == parent2Type && parent1Type == source_type1)
-                || (parent1Type != parent2Type
-                    && (parent1Type == source_type1 || parent1Type == source_type2)
-                    && (parent2Type == source_type1 || parent2Type == source_type2))){
-            if(serverWorld.random.nextInt(100) <= chance){
-                //pizdes x2 если нужно чекнуть блок и если у хотя бы одно из родителей нет блока под собой, то выйти
-                if(checkedBlock != null
-                        && (!serverWorld.getBlockState(parentEntity1.getBlockPos().down()).isOf(checkedBlock)
-                            || !serverWorld.getBlockState(parentEntity2.getBlockPos().down()).isOf(checkedBlock))){
-                    return;
-                }
-                genes.clear();
-                serverWorld.spawnParticles(ParticleTypes.FIREWORK,parentEntity1.getX(),parentEntity1.getY(),parentEntity1.getZ(),100, 0.1, 0.1,0.1,0.1);
-                setBeeType(child, result_type);
-            }
-
-        }
-
-    }
-
-
-    private static void trySetNewType(Genes checkedGene, BeeTypes newType, Block checkedBlock, int chance, List<Genes> genes, ServerWorld serverWorld, Entity parentEntity1, Entity parentEntity2, INbtSaver child){
-        INbtSaver parent1NBT = (INbtSaver) parentEntity1;
-        INbtSaver parent2NBT = (INbtSaver) parentEntity2;
-        if(containGene(parent1NBT, checkedGene)
-                && containGene(parent2NBT, checkedGene)
-                && serverWorld.getBlockState(parentEntity1.getBlockPos().down()).isOf(checkedBlock)
-                && serverWorld.getBlockState(parentEntity2.getBlockPos().down()).isOf(checkedBlock)
-                && serverWorld.random.nextInt(100) <= chance){
-            genes.clear();
-            serverWorld.spawnParticles(ParticleTypes.FIREWORK,parentEntity1.getX(),parentEntity1.getY(),parentEntity1.getZ(),100, 0.1, 0.1,0.1,0.1);
-            setBeeType(child, newType);
-        }
-    }
-
 }

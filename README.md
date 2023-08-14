@@ -41,8 +41,8 @@ How to get a bee that will bring items?
 
   ![Example of obtaining an obsidian bee](https://github.com/Alexresh/better-bee/blob/master/images/example3.png?raw=true)
 
-- Depending on her rarity she will bring a certain amount of stone to the hive with a certain chance from the scheme.
+- Depending on her rarity she will bring a certain amount of stone to the hive with a certain chance from the [loot table](https://github.com/Alexresh/better-bee/blob/master/Loot.md).
 For example a bee with rarity 1 will bring 1 stone with 10% chance, and a bee with rarity 10 will bring 10 stones with 100% chance. 
 
 How to get a rarer bee?
-- Cross 2 bees with the same type of bee
+- Cross 2 bees with the same type

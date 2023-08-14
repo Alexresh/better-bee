@@ -14,6 +14,15 @@ public class Enums {
     }
 
     public static enum BeeTypes{
+        Overworld,
+        Nether,
+        End,
+        OverworldBasic,
+        NetherBasic,
+        EndBasic,
+        Rain,
+        Thunder,
+
         Chorus,
         Obsidian,
         Shulker,
