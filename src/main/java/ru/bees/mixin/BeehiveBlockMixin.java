@@ -35,7 +35,7 @@ public abstract class BeehiveBlockMixin extends BlockWithEntity{
     }
 
     @Inject(method = "onUse", at = @At(value = "HEAD"), cancellable = true)
-    private void onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit, CallbackInfoReturnable ci){
+    private void onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit, CallbackInfoReturnable<ActionResult> ci){
         ItemStack itemInHand = player.getStackInHand(hand);
         INbtSaver beehive = (INbtSaver) world.getBlockEntity(pos);
         //rain
@@ -54,11 +54,11 @@ public abstract class BeehiveBlockMixin extends BlockWithEntity{
         checkEndHoney(itemInHand, world, ci, beehive, player);
     }
 
-    private void checkRainHoney(ItemStack itemInHand, World world, CallbackInfoReturnable ci, INbtSaver beehive, PlayerEntity player) {
+    private void checkRainHoney(ItemStack itemInHand, World world, CallbackInfoReturnable<ActionResult> ci, INbtSaver beehive, PlayerEntity player) {
         //BUCKET -> WATER_BUCKET
         checkItem(Items.BUCKET, Items.WATER_BUCKET, Honeys.RainHoney,5, SoundEvents.ITEM_BUCKET_FILL, player, itemInHand, beehive, world ,ci);
     }
-    private void checkThunderHoney(ItemStack itemInHand, World world, CallbackInfoReturnable ci, INbtSaver beehive, PlayerEntity player, Hand hand, BlockPos pos) {
+    private void checkThunderHoney(ItemStack itemInHand, World world, CallbackInfoReturnable<ActionResult> ci, INbtSaver beehive, PlayerEntity player, Hand hand, BlockPos pos) {
         if(itemInHand.isOf(Items.TRIDENT) && itemInHand.getEnchantments().toString().contains("minecraft:channeling")){
             if(world.isClient){
                 ci.setReturnValue(ActionResult.success(true));
@@ -73,7 +73,7 @@ public abstract class BeehiveBlockMixin extends BlockWithEntity{
             ci.setReturnValue(ActionResult.SUCCESS);
         }
     }
-    private void checkOverworldHoney(ItemStack itemInHand, World world, CallbackInfoReturnable ci, INbtSaver beehive, PlayerEntity player) {
+    private void checkOverworldHoney(ItemStack itemInHand, World world, CallbackInfoReturnable<ActionResult> ci, INbtSaver beehive, PlayerEntity player) {
         //NETHERRACK || END_STONE -> STONE
         checkItem(Items.NETHERRACK, Items.STONE, Honeys.OverworldHoney,1, SoundEvents.BLOCK_STONE_PLACE, player, itemInHand, beehive, world ,ci);
         checkItem(Items.END_STONE, Items.STONE, Honeys.OverworldHoney,1, SoundEvents.BLOCK_STONE_PLACE, player, itemInHand, beehive, world ,ci);
@@ -81,7 +81,7 @@ public abstract class BeehiveBlockMixin extends BlockWithEntity{
         //BLACK_STONE -> COBBLESTONE
         checkItem(Items.BLACKSTONE, Items.COBBLESTONE, Honeys.OverworldHoney,1, SoundEvents.BLOCK_STONE_BREAK, player, itemInHand, beehive, world ,ci);
     }
-    private void checkNetherHoney(ItemStack itemInHand, World world, CallbackInfoReturnable ci, INbtSaver beehive, PlayerEntity player) {
+    private void checkNetherHoney(ItemStack itemInHand, World world, CallbackInfoReturnable<ActionResult> ci, INbtSaver beehive, PlayerEntity player) {
         //STONE->NETHERRACK
         checkItem(Items.STONE, Items.NETHERRACK, Honeys.NetherHoney,1, SoundEvents.BLOCK_STONE_BREAK, player, itemInHand, beehive, world ,ci);
 
@@ -96,7 +96,7 @@ public abstract class BeehiveBlockMixin extends BlockWithEntity{
 
     }
 
-    private void checkEndHoney(ItemStack itemInHand, World world, CallbackInfoReturnable ci, INbtSaver beehive, PlayerEntity player) {
+    private void checkEndHoney(ItemStack itemInHand, World world, CallbackInfoReturnable<ActionResult> ci, INbtSaver beehive, PlayerEntity player) {
         //COBBLESTONE->ENDSTONE
         checkItem(Items.COBBLESTONE, Items.END_STONE, Honeys.EndHoney,1, SoundEvents.BLOCK_STONE_PLACE, player, itemInHand, beehive, world ,ci);
 
@@ -105,7 +105,7 @@ public abstract class BeehiveBlockMixin extends BlockWithEntity{
 
     }
 
-    private void checkItem(Item checkedItem, Item droppedItem, Honeys removedHoney, int amount, SoundEvent soundEvent, PlayerEntity player, ItemStack itemInHand, INbtSaver beehive, World world, CallbackInfoReturnable ci ){
+    private void checkItem(Item checkedItem, Item droppedItem, Honeys removedHoney, int amount, SoundEvent soundEvent, PlayerEntity player, ItemStack itemInHand, INbtSaver beehive, World world, CallbackInfoReturnable<ActionResult> ci ){
         if(itemInHand.isOf(checkedItem)){
             if(world.isClient){
                 ci.setReturnValue(ActionResult.success(true));

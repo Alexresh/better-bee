@@ -38,6 +38,19 @@ public class BeeDrops {
             case Copper -> new BeeDrop(Items.RAW_COPPER, COMMON_CHANCE, LEGENDARY_MULTIPLIER);
             case Gravel -> new BeeDrop(Items.GRAVEL, COMMON_CHANCE, LEGENDARY_MULTIPLIER);
             case Redstone -> new BeeDrop(Items.REDSTONE, COMMON_CHANCE, LEGENDARY_MULTIPLIER);
+            case Ice -> new BeeDrop(Items.ICE, COMMON_CHANCE, LEGENDARY_MULTIPLIER);
+            case Calcite -> new BeeDrop(Items.CALCITE, COMMON_CHANCE, LEGENDARY_MULTIPLIER);
+            case Amethyst -> new BeeDrop(Items.AMETHYST_SHARD, COMMON_CHANCE, LEGENDARY_MULTIPLIER);
+            case Deepslate -> new BeeDrop(Items.DEEPSLATE, COMMON_CHANCE, LEGENDARY_MULTIPLIER);
+            case AcaciaWood -> new BeeDrop(Items.ACACIA_LOG, COMMON_CHANCE, LEGENDARY_MULTIPLIER);
+            case Bamboo -> new BeeDrop(Items.BAMBOO_BLOCK, COMMON_CHANCE, LEGENDARY_MULTIPLIER);
+            case BirchWood -> new BeeDrop(Items.BIRCH_LOG, COMMON_CHANCE, LEGENDARY_MULTIPLIER);
+            case CherryWood -> new BeeDrop(Items.CHERRY_LOG, COMMON_CHANCE, LEGENDARY_MULTIPLIER);
+            case DarkOakWood -> new BeeDrop(Items.DARK_OAK_LOG, COMMON_CHANCE, LEGENDARY_MULTIPLIER);
+            case JungleWood -> new BeeDrop(Items.JUNGLE_WOOD, COMMON_CHANCE, LEGENDARY_MULTIPLIER);
+            case MangroveWood -> new BeeDrop(Items.MANGROVE_LOG, COMMON_CHANCE, LEGENDARY_MULTIPLIER);
+            case SpruceWood -> new BeeDrop(Items.SPRUCE_LOG, COMMON_CHANCE, LEGENDARY_MULTIPLIER);
+
             default -> null;
         };
     }

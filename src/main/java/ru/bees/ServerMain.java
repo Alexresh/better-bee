@@ -64,6 +64,10 @@ public class ServerMain implements ModInitializer {
 			}
 
 			if(playerHandItemStack.getItem() == Items.BEEHIVE){
+				if(playerHandItemStack.getCount() > 1){
+					player.sendMessage(Text.literal("Only one hive!").formatted(Formatting.RED), true);
+					return ActionResult.SUCCESS;
+				}
 				NbtCompound beeNbt = bee.writeNbt(new NbtCompound());
 				beeNbt.remove("UUID");
 				beeNbt.putString("id", "minecraft:bee");

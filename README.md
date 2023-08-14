@@ -13,6 +13,8 @@ This mod adds some mechanics to vanilla bees:
    
   ![Dropping and crossbreeding scheme](https://github.com/Alexresh/better-bee/blob/master/images/scheme.png?raw=true)
 
+[How to understand the scheme?](https://github.com/Alexresh/better-bee/blob/master/images/schemeAddonEn.png?raw=true)
+
 5. Clicking on a bee or beehive with the book displays information about it in the chat.
 6. Clicking on a bee with a hive will make it settle in it
 7. Clicking on the hive with any item with silk touch enchantment will make the hive drop with all the honey and bees inside it

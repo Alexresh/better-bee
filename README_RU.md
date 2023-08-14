@@ -13,6 +13,7 @@ English version: [README.md](https://github.com/Alexresh/better-bee/blob/master/
 
   ![Схема дропа и скрещивания](https://github.com/Alexresh/better-bee/blob/master/images/scheme.png?raw=true)
 
+  [Как понять схему?](https://github.com/Alexresh/better-bee/blob/master/images/schemeAddon.png?raw=true)
 5. Клик по пчеле или улью книгой выводит информацию о них в чат
 6. Клик по пчеле ульем заставит её поселиться в нем
 7. Клик по улью любым item с зачарованием шелковое касание заставит улей дропнуться со всем медом и пчелами внутри

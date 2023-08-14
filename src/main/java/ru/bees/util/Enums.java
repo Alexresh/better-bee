@@ -36,6 +36,8 @@ public class Enums {
         Cobblestone,
         Wood,
         Stone,
+        Deepslate,
+        Calcite,
         Coal,
         Iron,
         Diamond,
@@ -47,7 +49,17 @@ public class Enums {
         Lapis,
         Water,
         Clay,
-        Copper
+        Copper,
+        SpruceWood,
+        BirchWood,
+        JungleWood,
+        AcaciaWood,
+        DarkOakWood,
+        MangroveWood,
+        CherryWood,
+        Bamboo,
+        Amethyst,
+        Ice
     }
 
     public static enum Honeys{
