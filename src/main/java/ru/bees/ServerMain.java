@@ -40,7 +40,7 @@ public class ServerMain implements ModInitializer {
 
 			ItemStack playerHandItemStack = player.getStackInHand(hand);
 			INbtSaver beeNBT = (INbtSaver) bee;
-			if(playerHandItemStack.getItem() == Items.LECTERN){
+			if(playerHandItemStack.getItem() == Items.BOOK){
 				NbtList beeGenes = BeeData.getGenes(beeNBT);
 				int generation = BeeData.getGeneration(beeNBT);
 
@@ -104,34 +104,50 @@ public class ServerMain implements ModInitializer {
 		//get beehive block with data
 		UseBlockCallback.EVENT.register((player, world, hand, hitResult) -> {
 			if(!world.isClient){
-				if(world.getBlockEntity(hitResult.getBlockPos()) instanceof BeehiveBlockEntity beehiveBlockEntity && player.getStackInHand(hand).getEnchantments().toString().contains("silk_touch")){
-					ItemStack itemStack = new ItemStack(Items.BEEHIVE);
-					NbtCompound compound = new NbtCompound();
-					//insert a BB data in compound
-					compound.put(BeehiveData.HONEY_KEY, BeehiveData.getCompound(((INbtSaver) beehiveBlockEntity)));
-					boolean hasBees = !beehiveBlockEntity.hasNoBees();
-					//insert bees
-					if (hasBees) {
-						compound.put("Bees", beehiveBlockEntity.getBees());
+				//right-click on beehive
+				if(world.getBlockEntity(hitResult.getBlockPos()) instanceof BeehiveBlockEntity beehiveBlockEntity){
+					//click silk touch
+					if(player.getStackInHand(hand).getEnchantments().toString().contains("silk_touch")){
+						ItemStack itemStack = new ItemStack(Items.BEEHIVE);
+						NbtCompound compound = new NbtCompound();
+						//insert a BB data in compound
+						compound.put(BeehiveData.HONEY_KEY, BeehiveData.getCompound(((INbtSaver) beehiveBlockEntity)));
+						boolean hasBees = !beehiveBlockEntity.hasNoBees();
+						//insert bees
+						if (hasBees) {
+							compound.put("Bees", beehiveBlockEntity.getBees());
+						}
+						//insertBlockEntity
+						BlockItem.setBlockEntityNbt(itemStack, BlockEntityType.BEEHIVE, compound);
+						NbtCompound blockStateCompound = new NbtCompound();
+						//insert honeyLevel
+						int honeyLevel = world.getBlockState(hitResult.getBlockPos()).get(HONEY_LEVEL);
+						blockStateCompound.putInt("honey_level", honeyLevel);
+						//insert blockStateTag
+						itemStack.setSubNbt("BlockStateTag", blockStateCompound);
+						//spawn item in world
+						ItemEntity itemEntity = new ItemEntity(world, hitResult.getBlockPos().getX(), hitResult.getBlockPos().getY() + 1, hitResult.getBlockPos().getZ(), itemStack);
+						itemEntity.setToDefaultPickupDelay();
+						world.spawnEntity(itemEntity);
+						//remove block from world
+						world.removeBlock(hitResult.getBlockPos(),false);
+						return ActionResult.SUCCESS;
 					}
-					//insertBlockEntity
-					BlockItem.setBlockEntityNbt(itemStack, BlockEntityType.BEEHIVE, compound);
-					NbtCompound blockStateCompound = new NbtCompound();
-					//insert honeyLevel
-					int honeyLevel = world.getBlockState(hitResult.getBlockPos()).get(HONEY_LEVEL);
-					blockStateCompound.putInt("honey_level", honeyLevel);
-					//insert blockStateTag
-					itemStack.setSubNbt("BlockStateTag", blockStateCompound);
-					//spawn item in world
-					ItemEntity itemEntity = new ItemEntity(world, hitResult.getBlockPos().getX(), hitResult.getBlockPos().getY() + 1, hitResult.getBlockPos().getZ(), itemStack);
-					itemEntity.setToDefaultPickupDelay();
-					world.spawnEntity(itemEntity);
-					//remove block from world
-					world.removeBlock(hitResult.getBlockPos(),false);
-					return ActionResult.SUCCESS;
+					//click book
+					if(player.getStackInHand(hand).isOf(Items.BOOK)){
+						//send beehive data
+						NbtCompound beehiveHoneyData = BeehiveData.getCompound(((INbtSaver) beehiveBlockEntity));
+						if(!beehiveHoneyData.isEmpty()){
+							player.sendMessage(Text.literal(beehiveHoneyData.asString()
+									.replace("{", "").replace("}", "").replace(',', '\n')).formatted(Formatting.GOLD));
+						}
+						return ActionResult.SUCCESS;
+					}
 				}
 			}
 			return ActionResult.PASS;
 		});
+
+
 	}
 }
