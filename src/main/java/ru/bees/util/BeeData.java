@@ -122,7 +122,7 @@ public class BeeData {
                     || (parent1Type != parent2Type
                     && (parent1Type == variant.parent1Type() || parent1Type == variant.parent2Type())
                     && (parent2Type == variant.parent1Type() || parent2Type == variant.parent2Type()))){
-                if(serverWorld.random.nextInt(100) <= 100 /*variant.chance()*/){
+                if(serverWorld.random.nextInt(100) <= variant.chance()){
                     //pizdes x2 если нужно чекнуть блок и если у хотя бы одно из родителей нет нужного блока под собой, то выйти
                     if(variant.checkedBlock() != null
                             && (!serverWorld.getBlockState(parentEntity1.getBlockPos().down()).isOf(variant.checkedBlock())

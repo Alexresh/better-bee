@@ -58,6 +58,7 @@ public class ServerMain implements ModInitializer {
 					player.sendMessage(Text.literal("Type: ").formatted(Formatting.GRAY).append(Text.literal(type.name()).formatted(Formatting.AQUA)));
 				}
 				player.sendMessage(Text.literal("Rarity: ").formatted(Formatting.GRAY).append(Text.literal("" + BeeData.getBeeRarity(beeNBT))));
+				player.sendMessage(Text.literal("Can breed: ").formatted(Formatting.GRAY).append(Text.literal("" + bee.getBreedingAge())));
 
 				player.playSound(SoundEvents.ITEM_BOOK_PAGE_TURN, SoundCategory.PLAYERS, 1,1);
 				return ActionResult.SUCCESS;
