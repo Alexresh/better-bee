@@ -27,7 +27,7 @@ public class BeeData {
         return bee.getNbtData();
     }
 
-    private static void setGeneration(INbtSaver parent1,INbtSaver parent2, INbtSaver child){
+    private static void setGeneration(INbtSaver parent1, INbtSaver parent2, INbtSaver child){
         int generation1 = parent1.getNbtData().getInt(GENERATION_KEY);
         int generation2 = parent2.getNbtData().getInt(GENERATION_KEY);
         int childGeneration = generation1 >= generation2 ? generation1 + 1 : generation2 + 1;
@@ -131,6 +131,7 @@ public class BeeData {
                     }
                     serverWorld.spawnParticles(ParticleTypes.FIREWORK,parentEntity1.getX(),parentEntity1.getY(),parentEntity1.getZ(),100, 0.1, 0.1,0.1,0.1);
                     setBeeType(child, variant.resultType());
+                    setBeeRarity(child, 1);
                 }
             }
         }

@@ -29,7 +29,7 @@ public abstract class BeehiveEntityMixin extends BlockEntity {
 
     @Inject(method = "tryEnterHive(Lnet/minecraft/entity/Entity;ZI)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;removeAllPassengers()V", shift = At.Shift.AFTER))
     private void addBee(Entity entity, boolean hasNectar, int ticksInHive, CallbackInfo ci){
-        if(entity instanceof BeeEntity bee && hasNectar){
+        if(entity instanceof BeeEntity bee && hasNectar && !((BeeEntity) entity).hasAngerTime()){
             INbtSaver BBbee = (INbtSaver) bee;
             INbtSaver BBBeehive = (INbtSaver) this;
 
@@ -38,11 +38,11 @@ public abstract class BeehiveEntityMixin extends BlockEntity {
             int beeRarity = BeeData.getBeeRarity(BBbee);
             if(type == null) return;
             switch (type){
-                case Rain -> BeehiveData.addHoney(BBBeehive, Honeys.RainHoney, 1);
+                case Rain -> BeehiveData.addHoney(BBBeehive, Honeys.RainHoney, world.random.nextInt(6));
                 case Thunder -> BeehiveData.addHoney(BBBeehive, Honeys.ThunderHoney, 1);
-                case End -> BeehiveData.addHoney(BBBeehive, Honeys.EndHoney, 5);
-                case Nether -> BeehiveData.addHoney(BBBeehive, Honeys.NetherHoney, 5);
-                case Overworld -> BeehiveData.addHoney(BBBeehive, Honeys.OverworldHoney, 5);
+                case End -> BeehiveData.addHoney(BBBeehive, Honeys.EndHoney, world.random.nextInt(6));
+                case Nether -> BeehiveData.addHoney(BBBeehive, Honeys.NetherHoney, world.random.nextInt(6));
+                case Overworld -> BeehiveData.addHoney(BBBeehive, Honeys.OverworldHoney, world.random.nextInt(6));
                 default -> {}
             }
             BeeDrop drop = BeeDrops.getBeeDrop(type);

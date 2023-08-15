@@ -11,6 +11,8 @@ import net.minecraft.entity.passive.BeeEntity;
 import net.minecraft.item.*;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtList;
+import net.minecraft.particle.ParticleTypes;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
@@ -58,7 +60,7 @@ public class ServerMain implements ModInitializer {
 					player.sendMessage(Text.literal("Type: ").formatted(Formatting.GRAY).append(Text.literal(type.name()).formatted(Formatting.AQUA)));
 				}
 				player.sendMessage(Text.literal("Rarity: ").formatted(Formatting.GRAY).append(Text.literal("" + BeeData.getBeeRarity(beeNBT))));
-				player.sendMessage(Text.literal("Can breed: ").formatted(Formatting.GRAY).append(Text.literal("" + bee.getBreedingAge())));
+				player.sendMessage(Text.literal("Can breed: ").formatted(Formatting.GRAY).append(Text.literal("" + bee.getBreedingAge() / 20 + "s")));
 
 				player.playSound(SoundEvents.ITEM_BOOK_PAGE_TURN, SoundCategory.PLAYERS, 1,1);
 				return ActionResult.SUCCESS;
@@ -129,17 +131,33 @@ public class ServerMain implements ModInitializer {
 						//insert blockStateTag
 						itemStack.setSubNbt("BlockStateTag", blockStateCompound);
 						//spawn item in world
-						ItemEntity itemEntity = new ItemEntity(world, hitResult.getBlockPos().getX(), hitResult.getBlockPos().getY() + 1, hitResult.getBlockPos().getZ(), itemStack);
+						ItemEntity itemEntity = new ItemEntity(world, hitResult.getBlockPos().getX() + 0.5f, hitResult.getBlockPos().getY() + 0.5f, hitResult.getBlockPos().getZ()+0.5f, itemStack);
 						itemEntity.setToDefaultPickupDelay();
 						world.spawnEntity(itemEntity);
 						//remove block from world
 						world.removeBlock(hitResult.getBlockPos(),false);
+						((ServerWorld)world).spawnParticles(ParticleTypes.PORTAL,
+								hitResult.getBlockPos().getX() + 0.5,
+								hitResult.getBlockPos().getY() + 0.5,
+								hitResult.getBlockPos().getZ() + 0.5,
+								100,
+								0,0,0, 0.1);
 						return ActionResult.SUCCESS;
 					}
 					//click book
 					if(player.getStackInHand(hand).isOf(Items.BOOK)){
 						//send beehive data
 						NbtCompound beehiveHoneyData = BeehiveData.getCompound(((INbtSaver) beehiveBlockEntity));
+						int beeCount = beehiveBlockEntity.getBeeCount();
+						if(beeCount > 0){
+							NbtList bees = beehiveBlockEntity.getBees();
+							player.sendMessage(Text.literal("Bees:").formatted(Formatting.GOLD));
+							for (int i = 0; i < beeCount; i++) {
+								NbtCompound bee = ((NbtCompound) bees.get(i));
+								player.sendMessage(Text.literal("Bee["+ (i + 1) +"]:\n Occupation: " + bee.getInt("TicksInHive")/20 + "s/" + bee.getInt("MinOccupationTicks")/20 + "s").formatted(Formatting.GRAY));
+								player.sendMessage(Text.literal(" Type: " + bee.getCompound("EntityData").getCompound("BB_Bee").getString("BeeType")).formatted(Formatting.GREEN));
+							}
+						}
 						if(!beehiveHoneyData.isEmpty()){
 							player.sendMessage(Text.literal(beehiveHoneyData.asString()
 									.replace("{", "").replace("}", "").replace(',', '\n')).formatted(Formatting.GOLD));
