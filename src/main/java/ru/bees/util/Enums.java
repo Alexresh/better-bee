@@ -64,6 +64,7 @@ public class Enums {
 
     public static enum Honeys{
         RainHoney,
+        WaterHoney,
         ThunderHoney,
         NetherHoney,
         EndHoney,

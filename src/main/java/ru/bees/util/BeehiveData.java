@@ -9,8 +9,8 @@ public class BeehiveData {
     }
     private static int getMaxHoney(Enums.Honeys honey){
         return switch (honey){
-            case RainHoney, NetherHoney, EndHoney, OverworldHoney -> 64;
-            case ThunderHoney -> 5;
+            case WaterHoney, NetherHoney, EndHoney, OverworldHoney -> 64;
+            case ThunderHoney, RainHoney -> 5;
         };
     }
 

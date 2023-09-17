@@ -9,6 +9,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
@@ -22,6 +23,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import ru.bees.ServerMain;
 import ru.bees.util.Enums.*;
 import ru.bees.util.BeehiveData;
 import ru.bees.util.INbtSaver;
@@ -41,6 +43,9 @@ public abstract class BeehiveBlockMixin extends BlockWithEntity{
         //rain
         checkRainHoney(itemInHand, world, ci, beehive, player);
 
+        //water
+        checkWaterHoney(itemInHand, world, ci, beehive, player);
+
         //thunder
         checkThunderHoney(itemInHand, world, ci, beehive, player, hand, pos);
 
@@ -53,10 +58,38 @@ public abstract class BeehiveBlockMixin extends BlockWithEntity{
         //end
         checkEndHoney(itemInHand, world, ci, beehive, player);
     }
-
     private void checkRainHoney(ItemStack itemInHand, World world, CallbackInfoReturnable<ActionResult> ci, INbtSaver beehive, PlayerEntity player) {
+        //SWITCH RAIN
+        //stop rain
+        if(itemInHand.isOf(Items.GLASS) && itemInHand.getCount() >= 16 && world.isRaining()){
+            if(world.isClient){
+                ci.setReturnValue(ActionResult.success(true));
+                return;
+            }
+            if(BeehiveData.tryRemoveHoney(beehive, Honeys.RainHoney, 5)){
+                world.getLevelProperties().setRaining(false);
+                world.setRainGradient(1.0f);
+                itemInHand.decrement(16);
+            }
+            ci.setReturnValue(ActionResult.SUCCESS);
+        }
+        if(itemInHand.isOf(Items.WATER_BUCKET) && !world.isRaining()){
+            if(world.isClient){
+                ci.setReturnValue(ActionResult.success(true));
+                return;
+            }
+            if(BeehiveData.tryRemoveHoney(beehive, Honeys.RainHoney, 5)){
+                ((ServerWorld)world).setWeather(0, world.random.nextBoolean() ? 12000 : 24000, true, false);
+                itemInHand.decrement(1);
+                player.dropItem(new ItemStack(Items.BUCKET), true);
+            }
+            ci.setReturnValue(ActionResult.SUCCESS);
+        }
+    }
+
+    private void checkWaterHoney(ItemStack itemInHand, World world, CallbackInfoReturnable<ActionResult> ci, INbtSaver beehive, PlayerEntity player) {
         //BUCKET -> WATER_BUCKET
-        checkItem(Items.BUCKET, Items.WATER_BUCKET, Honeys.RainHoney,5, SoundEvents.ITEM_BUCKET_FILL, player, itemInHand, beehive, world ,ci);
+        checkItem(Items.BUCKET, Items.WATER_BUCKET, Honeys.WaterHoney, 1, SoundEvents.ITEM_BUCKET_FILL, player, itemInHand, beehive, world, ci);
     }
     private void checkThunderHoney(ItemStack itemInHand, World world, CallbackInfoReturnable<ActionResult> ci, INbtSaver beehive, PlayerEntity player, Hand hand, BlockPos pos) {
         if(itemInHand.isOf(Items.TRIDENT) && itemInHand.getEnchantments().toString().contains("minecraft:channeling")){

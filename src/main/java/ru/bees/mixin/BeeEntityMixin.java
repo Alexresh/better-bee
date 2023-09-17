@@ -2,8 +2,6 @@ package ru.bees.mixin;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.passive.AnimalEntity;
 import net.minecraft.entity.passive.BeeEntity;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;

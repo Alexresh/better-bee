@@ -39,7 +39,8 @@ public abstract class BeehiveEntityMixin extends BlockEntity {
             int beeRarity = BeeData.getBeeRarity(BBbee);
             if(type == null) return;
             switch (type){
-                case Rain -> BeehiveData.addHoney(BBBeehive, Honeys.RainHoney, world.random.nextInt(6));
+                case Rain -> BeehiveData.addHoney(BBBeehive, Honeys.RainHoney, 1);
+                case Water -> BeehiveData.addHoney(BBBeehive, Honeys.WaterHoney, world.random.nextInt(6));
                 case Thunder -> BeehiveData.addHoney(BBBeehive, Honeys.ThunderHoney, 1);
                 case End -> BeehiveData.addHoney(BBBeehive, Honeys.EndHoney, world.random.nextInt(6));
                 case Nether -> BeehiveData.addHoney(BBBeehive, Honeys.NetherHoney, world.random.nextInt(6));
