@@ -1,4 +1,4 @@
-Better-bees (Fabric, Fabric api, Minecraft 1.20.1)
+Better-bees (Fabric, Fabric api, Minecraft 1.20.1-1.20.4)
 
 На русском: [README.md](https://github.com/Alexresh/better-bee/blob/master/README_RU.md)
 

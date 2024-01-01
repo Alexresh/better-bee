@@ -20,15 +20,11 @@
 		]
 	},
 	"mixins": [
-		"better-bees.mixins.json",
-		{
-			"config": "better-bees.client.mixins.json",
-			"environment": "client"
-		}
+		"better-bees.mixins.json"
 	],
 	"depends": {
 		"fabricloader": ">=0.14.22",
-		"minecraft": "~1.20.1",
+		"minecraft": "~1.20.4",
 		"java": ">=17",
 		"fabric-api": "*"
 	}
